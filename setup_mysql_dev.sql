@@ -1,11 +1,6 @@
-#!/usr/bin/env bash
-#Prepare the webservers for the deployment of web_static
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y install nginx
-sudo mkdir -p /data/web_static/releases/test /data/web_static/shared
-echo "Hello world" | sudo tee /data/web_static/releases/test/index.html
-sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
-sudo chown -hR ubuntu:ubuntu /data/
-sudo sed -i '38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n' /etc/nginx/sites-available/default
-sudo service nginx start
+-- Create a user, a database and grant pivileges on the database to the user
+CREATE DATABASE IF NOT EXISTS hbnb_dev_db;
+CREATE  USER IF NOT EXISTS 'hbnb_dev'@'localhost' IDENTIFIED BY 'hbnb_dev_pwd';
+GRANT ALL PRIVILEGES ON hbnb_dev_db.* TO 'hbnb_dev'@'localhost';
+GRANT SELECT on performance_schema.* TO 'hbnb_dev'@'localhost';
+FLUSH PRIVILEGES;
