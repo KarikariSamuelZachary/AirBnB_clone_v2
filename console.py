@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] is '{' and pline[-1] is '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -114,17 +114,44 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
+        """Create an object of any class"""
+        """ Check if class name is missing """
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        args_list = args.split()
+
+        class_name = args_list[0]
+
+        """ Check if class exists """
+        if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+
+        # Remove class name from the args list
+        args_list.pop(0)
+
+        # Initialize a dictionary to store parameters
+        params = {}
+
+        """ Iterate over the remaining arguments to extract parameters """
+        for arg in args_list:
+            # Split each argument based on '='
+            split_arg = arg.split('=')
+            # Check if the argument is in key=value format
+            if len(split_arg) == 2:
+                key, value = split_arg[0], split_arg[1]
+                # Replace underscores with spaces in the key
+                key = key.replace('_', ' ')
+                # Remove double quotes from the value
+                value = value.replace('\\"', '"')
+                # Add the parameter to the dictionary
+                params[key] = value
+                # Create an instance of the specified class with the extracted parameters
+                new_instance = HBNBCommand.classes[class_name](**params)
+                storage.save()
+                print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
@@ -319,6 +346,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
